@@ -29,19 +29,29 @@ end
 local playersService = cloneref(game:GetService('Players'))
 
 local function downloadFile(path, func)
-	if not isfile(path) then
-		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/aidanqm/VapeV4ForRobloxians/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
-		end)
-		if not suc or res == '404: Not Found' then
-			error(res)
-		end
-		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
-		end
-		writefile(path, res)
-	end
-	return (func or readfile)(path)
+    print("Downloading file:", path)  -- Debug print
+    if path == nil then
+        error("Path is nil")
+    end
+    if not isfile(path) then
+        local commitHash = readfile('newvape/profiles/commit.txt')
+        print("Commit hash:", commitHash)  -- Debug print
+        local url = 'https://raw.githubusercontent.com/aidanqm/VapeV4ForRobloxians/'..commitHash..'/'..select(1, path:gsub('newvape/', ''))
+        print("Constructed URL:", url)  -- Debug print
+        local suc, res = pcall(function() 
+            return game:HttpGet(url, true) 
+        end)
+        print("HTTP Get success:", suc)  -- Debug print
+        print("HTTP Get result:", res)  -- Debug print
+        if not suc or res == '404: Not Found' then 
+            error(res) 
+        end
+        if path:find('.lua') then 
+            res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res 
+        end
+        writefile(path, res)
+    end
+    return (func or readfile)(path)
 end
 
 local function finishLoading()
